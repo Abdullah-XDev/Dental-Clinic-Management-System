@@ -1,34 +1,40 @@
-# نظام إدارة عيادة الأسنان - د. حسن حشاش
+# Dental Clinic Management System
 
-نظام إدارة متكامل لعيادة الأسنان يتيح إدارة المرضى والمواعيد والملفات والمدفوعات بكفاءة عالية.
+A comprehensive web-based management system designed for dental clinics to efficiently manage appointments, patients, and clinic operations.
 
-## المميزات
+## Features
 
-- واجهة مستخدم عربية سهلة الاستخدام
-- إدارة ملفات المرضى
-- جدولة المواعيد
-- إدارة المدفوعات والمصروفات
-- نظام تقارير متكامل
-- إدارة المستخدمين والصلاحيات
-- حفظ وإدارة صور الأشعة والتشخيص
+- 🦷 **Patient Management**
+  - New patient registration
+  - Patient records and history
+  - File and image management
+  
+- 📅 **Appointment System**
+  - Schedule appointments
+  - Daily reviews
+  - Appointment tracking
+  
+- 💰 **Financial Management**
+  - Cash box management
+  - Payment tracking
+  - Expense management
+  - Financial reports
 
-## متطلبات التشغيل
+- 👥 **User Management**
+  - Role-based access control
+  - User permissions
+  - Staff management
 
-- متصفح حديث يدعم HTML5 و CSS3
-- اتصال بالإنترنت لتحميل الخطوط والأيقونات
+- 📊 **Reporting System**
+  - Comprehensive reports
+  - Daily reviews
+  - Financial analytics
 
-## طريقة التشغيل
+## Technologies Used
 
-1. قم بفتح ملف `login.html` في المتصفح
-2. سجل الدخول باستخدام بيانات الاعتماد الخاصة بك
-3. استخدم القائمة الجانبية للتنقل بين الوحدات المختلفة
+- HTML5
+- CSS3
+- JavaScript
+- Modern responsive design
 
-## الأمان
-
-- تشفير كامل لبيانات المرضى
-- نظام صلاحيات متعدد المستويات
-- تسجيل كامل لجميع العمليات
-
-## الدعم الفني
-
-للحصول على المساعدة أو الإبلاغ عن مشكلة، يرجى التواصل مع الدعم الفني
+## Project Structure
