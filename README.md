@@ -38,3 +38,5 @@ A comprehensive web-based management system designed for dental clinics to effic
 - Modern responsive design
 
 ## Project Structure
+username: admin
+password: 123456789
