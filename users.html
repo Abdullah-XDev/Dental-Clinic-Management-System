@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المستخدمون - نظام إدارة عيادة الأسنان</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sidebar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .users-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .users-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .add-user-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .user-card {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .user-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .user-info h3 {
+            margin: 0;
+            font-size: 1.2rem;
+        }
+
+        .user-role {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .user-details {
+            margin-top: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        .user-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            color: white;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .edit-btn {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .permissions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .permission-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .permission-item input[type="checkbox"] {
+            margin-left: 10px;
+        }
+
+        .permission-item label {
+            margin: 0;
+            font-weight: 500;
+            color: white;
+            flex-grow: 1;
+            text-align: right;
+        }
+
+        .perm-appointments {
+            background: linear-gradient(135deg, #FF6B6B, #FF8787);
+        }
+
+        .perm-files {
+            background: linear-gradient(135deg, #4ECDC4, #45B7AF);
+        }
+
+        .perm-new_patient {
+            background: linear-gradient(135deg, #A8E6CF, #8ED7B6);
+        }
+
+        .perm-daily_reviews {
+            background: linear-gradient(135deg, #FFD93D, #FFB302);
+        }
+
+        .perm-reports {
+            background: linear-gradient(135deg, #6C5CE7, #8B7DFF);
+        }
+
+        .perm-payments {
+            background: linear-gradient(135deg, #FF9F43, #FFA75F);
+        }
+
+        .perm-cash {
+            background: linear-gradient(135deg, #00B894, #00A884);
+        }
+
+        .perm-images {
+            background: linear-gradient(135deg, #FF78C4, #FF96D5);
+        }
+
+        .perm-users {
+            background: linear-gradient(135deg, #5E60CE, #7678ED);
+        }
+
+        .permission-item input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .permission-item input[type="checkbox"]:checked {
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+
+        .permission-item input[type="checkbox"]:checked::before {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #333;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .permission-item input[type="checkbox"]:hover {
+            transform: scale(1.1);
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex: 1;
+            max-width: 300px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 10px 0;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="assets/dr.jpg" alt="صورة الطبيب">
+                </div>
+                <div class="welcome">
+                    <span>يوم سعيد</span>
+                    <h3>د. حسن حشاش</h3>
+                </div>
+            </div>
+            <div class="logo">
+                <img src="assets/logo.jpg" alt="شعار العيادة">
+                <h1>نظام إدارة عيادة الأسنان</h1>
+            </div>
+        </header>
+        
+        <nav class="sidebar">
+            <a href="index.html" class="sidebar-item sidebar-home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="new-patient.html" class="sidebar-item sidebar-new-patient" onclick="return checkPermission('new_patient')">
+                <i class="fas fa-user-plus"></i>
+                <span>مريض جديد</span>
+            </a>
+            <a href="payments.html" class="sidebar-item sidebar-payments" onclick="return checkPermission('payments')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>المدفوعات</span>
+            </a>
+            <a href="expenses.html" class="sidebar-item sidebar-expenses">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>المصروفات</span>
+            </a>
+            <a href="search.html" class="sidebar-item sidebar-search">
+                <i class="fas fa-search"></i>
+                <span>بحث</span>
+            </a>
+            <a href="users.html" class="sidebar-item sidebar-users" onclick="return checkPermission('users')">
+                <i class="fas fa-users"></i>
+                <span>المستخدمون</span>
+            </a>
+            <a href="settings.html" class="sidebar-item sidebar-settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            <a href="#" class="sidebar-item sidebar-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل خروج</span>
+            </a>
+        </nav>
+
+        <main>
+            <div class="users-container">
+                <div class="users-header">
+                    <h2>المستخدمون</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="بحث عن مستخدم...">
+                    </div>
+                    <button class="add-user-btn" onclick="openModal()">
+                        <i class="fas fa-user-plus"></i>
+                        إضافة مستخدم
+                    </button>
+                </div>
+
+                <div class="users-grid" id="usersGrid">
+                    <!-- Users will be populated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">إضافة مستخدم جديد</h3>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="userForm">
+                <input type="hidden" id="userId">
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">الاسم الكامل</label>
+                            <input type="text" id="fullName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="username">اسم المستخدم</label>
+                            <input type="text" id="username" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="email">البريد الإلكتروني</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">رقم الهاتف</label>
+                            <input type="tel" id="phone" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="userImage">صورة المستخدم</label>
+                            <input type="file" id="userImage" accept="image/*" onchange="handleImageUpload(event)">
+                            <div id="imagePreview" class="image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="password">كلمة المرور</label>
+                            <input type="password" id="password">
+                        </div>
+                        <div class="form-group">
+                            <label for="role">الدور</label>
+                            <select id="role" required>
+                                <option value="">اختر الدور</option>
+                                <option value="admin">مدير</option>
+                                <option value="doctor">طبيب</option>
+                                <option value="receptionist">موظف استقبال</option>
+                                <option value="assistant">مساعد طبيب</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h4 class="permissions-title">الصلاحيات</h4>
+                    <div class="permissions-grid">
+                        <div class="permission-item perm-appointments">
+                            <label for="perm_appointments">المواعيد</label>
+                            <input type="checkbox" id="perm_appointments">
+                        </div>
+                        <div class="permission-item perm-files">
+                            <label for="perm_files">الملفات</label>
+                            <input type="checkbox" id="perm_files">
+                        </div>
+                        <div class="permission-item perm-new_patient">
+                            <label for="perm_new_patient">مريض جديد</label>
+                            <input type="checkbox" id="perm_new_patient">
+                        </div>
+                        <div class="permission-item perm-daily_reviews">
+                            <label for="perm_daily_reviews">مراجعات اليوم</label>
+                            <input type="checkbox" id="perm_daily_reviews">
+                        </div>
+                        <div class="permission-item perm-reports">
+                            <label for="perm_reports">التقارير</label>
+                            <input type="checkbox" id="perm_reports">
+                        </div>
+                        <div class="permission-item perm-payments">
+                            <label for="perm_payments">المدفوعات</label>
+                            <input type="checkbox" id="perm_payments">
+                        </div>
+                        <div class="permission-item perm-cash">
+                            <label for="perm_cash">الصندوق</label>
+                            <input type="checkbox" id="perm_cash">
+                        </div>
+                        <div class="permission-item perm-images">
+                            <label for="perm_images">الصور</label>
+                            <input type="checkbox" id="perm_images">
+                        </div>
+                        <div class="permission-item perm-users">
+                            <label for="perm_users">المستخدمون</label>
+                            <input type="checkbox" id="perm_users">
+                        </div>
+                    </div>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">إلغاء</button>
+                    <button type="submit" class="btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="permissions.js"></script>
+    <script>
+        let currentUserImage = null;
+
+        function handleImageUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUserImage = e.target.result;
+                    const preview = document.getElementById('imagePreview');
+                    preview.innerHTML = `<img src="${currentUserImage}" alt="صورة المستخدم">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Check if logged in
+        if (!localStorage.getItem('loggedIn')) {
+            window.location.href = 'login.html';
+        }
+        
+        // Check if user has permission to access users page
+        enforcePermission('users');
+
+        // Update user info in header
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (currentUser.fullName) {
+            document.querySelector('.welcome h3').textContent = currentUser.fullName;
+        }
+        // Update user avatar
+        if (currentUser.userImage) {
+            document.querySelector('.avatar img').src = currentUser.userImage;
+        }
+
+        // Initialize users in localStorage if not exists
+        if (!localStorage.getItem('users')) {
+            const defaultAdmin = {
+                id: '1',
+                fullName: 'Administrator',
+                username: 'admin',
+                password: '123456789',
+                email: 'admin@example.com',
+                phone: '123456789',
+                role: 'admin',
+                status: 'active',
+                permissions: ['appointments', 'files', 'new_patient', 'daily_reviews', 'reports', 'payments', 'cash', 'images', 'users']
+            };
+            localStorage.setItem('users', JSON.stringify([defaultAdmin]));
+        } else {
+            // تحديث بيانات المستخدم الرئيسي إذا كان موجوداً
+            let users = JSON.parse(localStorage.getItem('users'));
+            const adminIndex = users.findIndex(u => u.id === '1');
+            if (adminIndex !== -1) {
+                users[adminIndex].username = 'admin';
+                users[adminIndex].password = '123456789';
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+        }
+
+        function openModal(userId = null) {
+            currentUserImage = null;
+            const modal = document.getElementById('userModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('userForm');
+            const permissionsSection = document.querySelector('.permissions-grid');
+            const imagePreview = document.getElementById('imagePreview');
+            
+            if (userId) {
+                modalTitle.textContent = 'تعديل المستخدم';
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.id === userId);
+                if (user) {
+                    document.getElementById('userId').value = userId;
+                    document.getElementById('fullName').value = user.fullName;
+                    document.getElementById('username').value = user.username;
+                    document.getElementById('email').value = user.email;
+                    document.getElementById('phone').value = user.phone;
+                    document.getElementById('role').value = user.role;
+                    
+                    // عرض الصورة الحالية
+                    if (user.userImage) {
+                        imagePreview.innerHTML = `<img src="${user.userImage}" alt="صورة المستخدم">`;
+                    } else {
+                        imagePreview.innerHTML = '';
+                    }
+
+                    if (userId === '1') {
+                        permissionsSection.parentElement.style.display = 'none';
+                    } else {
+                        permissionsSection.parentElement.style.display = 'block';
+                        user.permissions.forEach(perm => {
+                            const checkbox = document.getElementById(`perm_${perm}`);
+                            if (checkbox) checkbox.checked = true;
+                        });
+                    }
+                }
+            } else {
+                modalTitle.textContent = 'إضافة مستخدم جديد';
+                form.reset();
+                document.getElementById('userId').value = '';
+                permissionsSection.parentElement.style.display = 'block';
+                imagePreview.innerHTML = '';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('userModal').style.display = 'none';
+            document.getElementById('userForm').reset();
+        }
+
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const usersGrid = document.getElementById('usersGrid');
+            usersGrid.innerHTML = '';
+
+            users.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                userCard.innerHTML = `
+                    <span class="status-badge status-${user.status || 'active'}">
+                        ${user.status === 'inactive' ? 'غير نشط' : 'نشط'}
+                    </span>
+                    <div class="user-header">
+                        <div class="user-avatar">
+                            ${user.userImage ? `<img src="${user.userImage}" alt="صورة المستخدم">` : `<i class="fas fa-user"></i>`}
+                        </div>
+                        <div class="user-info">
+                            <h3>${user.fullName}</h3>
+                            <div class="user-role">
+                                ${user.role === 'admin' ? 'مدير' :
+                                  user.role === 'doctor' ? 'طبيب' :
+                                  user.role === 'receptionist' ? 'موظف استقبال' : 'مساعد طبيب'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-details">
+                        <div class="detail-item">
+                            <i class="fas fa-user"></i>
+                            ${user.username}
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-envelope"></i>
+                            ${user.email}
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-phone"></i>
+                            ${user.phone}
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="action-btn edit-btn" onclick="openModal('${user.id}')">
+                            <i class="fas fa-edit"></i>
+                            تعديل
+                        </button>
+                        ${user.id !== '1' ? `
+                        <button class="action-btn delete-btn" onclick="deleteUser('${user.id}')">
+                            <i class="fas fa-trash"></i>
+                            حذف
+                        </button>
+                        ` : ''}
+                    </div>
+                `;
+                usersGrid.appendChild(userCard);
+            });
+        }
+
+        function deleteUser(userId) {
+            if (userId === '1') {
+                alert('لا يمكن حذف المستخدم الرئيسي');
+                return;
+            }
+
+            if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
+                let users = JSON.parse(localStorage.getItem('users') || '[]');
+                users = users.filter(user => user.id !== userId);
+                localStorage.setItem('users', JSON.stringify(users));
+                loadUsers();
+            }
+        }
+
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('userId').value;
+            const permissions = ['appointments', 'files', 'new_patient', 'daily_reviews', 'reports', 'payments', 'cash', 'images', 'users']
+                .filter(perm => document.getElementById(`perm_${perm}`).checked);
+
+            const userData = {
+                id: userId || Date.now().toString(),
+                fullName: document.getElementById('fullName').value,
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                role: document.getElementById('role').value,
+                status: 'active',
+                permissions: userId === '1' ? ['appointments', 'files', 'new_patient', 'daily_reviews', 'reports', 'payments', 'cash', 'images', 'users'] : permissions,
+                userImage: currentUserImage // حفظ الصورة
+            };
+
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            if (userId) {
+                const index = users.findIndex(u => u.id === userId);
+                if (index !== -1) {
+                    // Preserve password and image if not changed
+                    if (!document.getElementById('password').value) {
+                        userData.password = users[index].password;
+                    } else {
+                        userData.password = document.getElementById('password').value;
+                    }
+                    if (!currentUserImage) {
+                        userData.userImage = users[index].userImage;
+                    }
+                    users[index] = userData;
+                }
+            } else {
+                // New user - password is required
+                const password = document.getElementById('password').value;
+                if (!password) {
+                    alert('كلمة المرور مطلوبة للمستخدم الجديد');
+                    return;
+                }
+                userData.password = password;
+                users.push(userData);
+            }
+
+            localStorage.setItem('users', JSON.stringify(users));
+            closeModal();
+            loadUsers();
+            currentUserImage = null; // إعادة تعيين الصورة الحالية
+            alert(userId ? 'تم تحديث المستخدم بنجاح' : 'تم إضافة المستخدم بنجاح');
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const usersGrid = document.getElementById('usersGrid');
+            usersGrid.innerHTML = '';
+
+            const filteredUsers = users.filter(user => 
+                user.fullName.toLowerCase().includes(searchTerm) ||
+                user.username.toLowerCase().includes(searchTerm) ||
+                user.email.toLowerCase().includes(searchTerm)
+            );
+
+            filteredUsers.forEach(user => {
+                const userCard = document.createElement('div');
+                userCard.className = 'user-card';
+                userCard.innerHTML = `
+                    <span class="status-badge status-${user.status || 'active'}">
+                        ${user.status === 'inactive' ? 'غير نشط' : 'نشط'}
+                    </span>
+                    <div class="user-header">
+                        <div class="user-avatar">
+                            ${user.userImage ? `<img src="${user.userImage}" alt="صورة المستخدم">` : `<i class="fas fa-user"></i>`}
+                        </div>
+                        <div class="user-info">
+                            <h3>${user.fullName}</h3>
+                            <div class="user-role">
+                                ${user.role === 'admin' ? 'مدير' :
+                                  user.role === 'doctor' ? 'طبيب' :
+                                  user.role === 'receptionist' ? 'موظف استقبال' : 'مساعد طبيب'}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-details">
+                        <div class="detail-item">
+                            <i class="fas fa-user"></i>
+                            ${user.username}
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-envelope"></i>
+                            ${user.email}
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-phone"></i>
+                            ${user.phone}
+                        </div>
+                    </div>
+                    <div class="user-actions">
+                        <button class="action-btn edit-btn" onclick="openModal('${user.id}')">
+                            <i class="fas fa-edit"></i>
+                            تعديل
+                        </button>
+                        ${user.id !== '1' ? `
+                        <button class="action-btn delete-btn" onclick="deleteUser('${user.id}')">
+                            <i class="fas fa-trash"></i>
+                            حذف
+                        </button>
+                        ` : ''}
+                    </div>
+                `;
+                usersGrid.appendChild(userCard);
+            });
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('userModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Load users when page loads
+        loadUsers();
+    </script>
+</body>
+</html>

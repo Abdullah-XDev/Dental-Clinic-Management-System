@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مراجعات اليوم - نظام إدارة عيادة الأسنان</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sidebar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .reviews-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .add-review-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .reviews-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .reviews-table th,
+        .reviews-table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .reviews-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .reviews-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .payment-status {
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .status-paid {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-unpaid {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-partial {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .action-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 0.2rem;
+        }
+
+        .edit-btn {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="assets/dr.jpg" alt="صورة الطبيب">
+                </div>
+                <div class="welcome">
+                    <span>يوم سعيد</span>
+                    <h3>د. حسن حشاش</h3>
+                </div>
+            </div>
+            <div class="logo">
+                <img src="assets/logo.jpg" alt="شعار العيادة">
+                <h1>نظام إدارة عيادة الأسنان</h1>
+            </div>
+        </header>
+        
+        <nav class="sidebar">
+            <a href="index.html" class="sidebar-item sidebar-home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="new-patient.html" class="sidebar-item sidebar-new-patient" onclick="return checkPermission('new_patient')">
+                <i class="fas fa-user-plus"></i>
+                <span>مريض جديد</span>
+            </a>
+            <a href="payments.html" class="sidebar-item sidebar-payments" onclick="return checkPermission('payments')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>المدفوعات</span>
+            </a>
+            <a href="expenses.html" class="sidebar-item sidebar-expenses">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>المصروفات</span>
+            </a>
+            <a href="search.html" class="sidebar-item sidebar-search">
+                <i class="fas fa-search"></i>
+                <span>بحث</span>
+            </a>
+            <a href="users.html" class="sidebar-item sidebar-users" onclick="return checkPermission('users')">
+                <i class="fas fa-users"></i>
+                <span>المستخدمون</span>
+            </a>
+            <a href="settings.html" class="sidebar-item sidebar-settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            <a href="#" class="sidebar-item sidebar-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل خروج</span>
+            </a>
+        </nav>
+
+        <main>
+            <div class="reviews-container">
+                <div class="review-header">
+                    <h2>مراجعات اليوم</h2>
+                    <button class="add-review-btn" onclick="openModal()">
+                        <i class="fas fa-plus"></i>
+                        إضافة مراجعة
+                    </button>
+                </div>
+
+                <table class="reviews-table">
+                    <thead>
+                        <tr>
+                            <th>اسم المريض</th>
+                            <th>رقم الهاتف</th>
+                            <th>وقت الزيارة</th>
+                            <th>العلاج</th>
+                            <th>التكلفة</th>
+                            <th>حالة الدفع</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reviewsTableBody">
+                        <!-- Reviews will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Review Modal -->
+    <div id="reviewModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">إضافة مراجعة جديدة</h3>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="reviewForm">
+                <input type="hidden" id="reviewId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patientName">اسم المريض</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="patientPhone">رقم الهاتف</label>
+                        <input type="tel" id="patientPhone" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="visitTime">وقت الزيارة</label>
+                        <input type="time" id="visitTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="treatment">العلاج</label>
+                        <input type="text" id="treatment" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cost">التكلفة</label>
+                        <input type="number" id="cost" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentStatus">حالة الدفع</label>
+                        <select id="paymentStatus" required>
+                            <option value="paid">مدفوع</option>
+                            <option value="partial">مدفوع جزئياً</option>
+                            <option value="unpaid">غير مدفوع</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">إلغاء</button>
+                    <button type="submit" class="btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="permissions.js"></script>
+    <script>
+        // التحقق من تسجيل الدخول وصلاحيات الوصول لمراجعات اليوم
+        if (!localStorage.getItem('loggedIn')) {
+            window.location.href = 'login.html';
+        }
+        
+        // التحقق من صلاحية الوصول لمراجعات اليوم
+        enforcePermission('daily_reviews');
+
+        let editingReviewId = null;
+
+        function openModal(reviewId = null) {
+            editingReviewId = reviewId;
+            const modal = document.getElementById('reviewModal');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            if (reviewId) {
+                modalTitle.textContent = 'تعديل المراجعة';
+                const reviews = JSON.parse(localStorage.getItem('dailyReviews') || '[]');
+                const review = reviews.find(r => r.id === reviewId);
+                if (review) {
+                    document.getElementById('patientName').value = review.patientName;
+                    document.getElementById('patientPhone').value = review.patientPhone;
+                    document.getElementById('visitTime').value = review.visitTime;
+                    document.getElementById('treatment').value = review.treatment;
+                    document.getElementById('cost').value = review.cost;
+                    document.getElementById('paymentStatus').value = review.paymentStatus;
+                }
+            } else {
+                modalTitle.textContent = 'إضافة مراجعة جديدة';
+                document.getElementById('reviewForm').reset();
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('reviewModal').style.display = 'none';
+            document.getElementById('reviewForm').reset();
+            editingReviewId = null;
+        }
+
+        function loadReviews() {
+            const reviews = JSON.parse(localStorage.getItem('dailyReviews') || '[]');
+            const tableBody = document.getElementById('reviewsTableBody');
+            tableBody.innerHTML = '';
+
+            reviews.forEach(review => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${review.patientName}</td>
+                    <td>${review.patientPhone}</td>
+                    <td>${review.visitTime}</td>
+                    <td>${review.treatment}</td>
+                    <td>${review.cost} شيكل</td>
+                    <td>
+                        <span class="payment-status status-${review.paymentStatus}">
+                            ${review.paymentStatus === 'paid' ? 'مدفوع' : 
+                              review.paymentStatus === 'partial' ? 'مدفوع جزئياً' : 'غير مدفوع'}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="action-btn edit-btn" onclick="openModal('${review.id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteReview('${review.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function deleteReview(reviewId) {
+            if (confirm('هل أنت متأكد من حذف هذه المراجعة؟')) {
+                let reviews = JSON.parse(localStorage.getItem('dailyReviews') || '[]');
+                reviews = reviews.filter(review => review.id !== reviewId);
+                localStorage.setItem('dailyReviews', JSON.stringify(reviews));
+                loadReviews();
+            }
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const reviewData = {
+                id: editingReviewId || Date.now().toString(),
+                patientName: document.getElementById('patientName').value,
+                patientPhone: document.getElementById('patientPhone').value,
+                visitTime: document.getElementById('visitTime').value,
+                treatment: document.getElementById('treatment').value,
+                cost: document.getElementById('cost').value,
+                paymentStatus: document.getElementById('paymentStatus').value,
+                date: new Date().toISOString().split('T')[0]
+            };
+
+            let reviews = JSON.parse(localStorage.getItem('dailyReviews') || '[]');
+            
+            if (editingReviewId) {
+                const index = reviews.findIndex(r => r.id === editingReviewId);
+                if (index !== -1) {
+                    reviews[index] = reviewData;
+                }
+            } else {
+                reviews.push(reviewData);
+            }
+
+            localStorage.setItem('dailyReviews', JSON.stringify(reviews));
+            closeModal();
+            loadReviews();
+            alert(editingReviewId ? 'تم تحديث المراجعة بنجاح' : 'تم إضافة المراجعة بنجاح');
+        });
+
+        // Load reviews when page loads
+        loadReviews();
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('reviewModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Update user info in header
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (currentUser.fullName) {
+            document.querySelector('.welcome h3').textContent = currentUser.fullName;
+        }
+        // Update user avatar
+        if (currentUser.userImage) {
+            document.querySelector('.avatar img').src = currentUser.userImage;
+        }
+    </script>
+</body>
+</html>

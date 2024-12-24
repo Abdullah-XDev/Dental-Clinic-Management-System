@@ -1,0 +1,255 @@
+:root {
+    --primary-color: #2c7da0;
+    --secondary-color: #468faf;
+    --background-color: #f8f9fa;
+    --text-color: #2b2d42;
+    --border-color: #e9ecef;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Cairo', sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    direction: rtl;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    grid-template-rows: auto 1fr;
+    min-height: 100vh;
+}
+
+header {
+    grid-column: 1 / -1;
+    background-color: white;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.logo img {
+    width: 120px;
+    height: 120px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.logo h1 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.avatar img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.welcome {
+    text-align: right;
+}
+
+.welcome span {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.sidebar {
+    background-color: var(--primary-color);
+    padding: 2rem 0;
+    color: white;
+}
+
+.sidebar ul {
+    list-style: none;
+}
+
+.sidebar ul li:nth-child(1) a {
+    background-color: #2c7da0;
+}
+
+.sidebar ul li:nth-child(2) a {
+    background-color: #61a5c2;
+}
+
+.sidebar ul li:nth-child(3) a {
+    background-color: #89c2d9;
+}
+
+.sidebar ul li:nth-child(4) a {
+    background-color: #a9d6e5;
+}
+
+.sidebar ul li:nth-child(5) a {
+    background-color: #2a6f97;
+}
+
+.sidebar ul li:nth-child(6) a {
+    background-color: #014f86;
+}
+
+.sidebar ul li:nth-child(7) a {
+    background-color: #01497c;
+}
+
+.sidebar ul li:nth-child(8) a {
+    background-color: #013a63;
+}
+
+.sidebar ul li a:hover {
+    background-color: #468faf;
+    transform: translateX(-10px);
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: background-color 0.3s;
+}
+
+.sidebar a.active {
+    background-color: var(--secondary-color);
+}
+
+main {
+    padding: 2rem;
+}
+
+.dashboard-grid {
+    display: grid;
+    gap: 2rem;
+}
+
+.stat-card {
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.stat-card .count {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stat-card .label {
+    color: #666;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+}
+
+.grid-item {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.3s;
+    cursor: pointer;
+}
+
+.grid-item:hover {
+    transform: translateY(-5px);
+}
+
+.grid-item img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 1rem;
+}
+
+.grid-item h3 {
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+/* Login Form Styles */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: var(--background-color);
+}
+
+.login-form {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-form h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 2rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    width: 100%;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color);
+}

@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بحث عن مريض - نظام إدارة عيادة الأسنان</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sidebar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .search-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .search-box input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            width: 300px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box input:focus {
+            border-color: #4CAF50;
+        }
+
+        .search-box button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-box button:hover {
+            background: #45a049;
+            transform: scale(1.05);
+        }
+
+        .search-box button i {
+            font-size: 1.2em;
+        }
+
+        .search-box .fa-search {
+            font-size: 1.2em;
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-filters select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .results-table th,
+        .results-table td {
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .results-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+
+        .results-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-view,
+        .btn-edit,
+        .btn-delete {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .btn-view {
+            background-color: var(--primary-color);
+        }
+
+        .btn-edit {
+            background-color: #ffc107;
+        }
+
+        .btn-delete {
+            background-color: #dc3545;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .patient-details {
+            display: none;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 1rem;
+        }
+
+        .patient-details.show {
+            display: block;
+        }
+
+        .details-section {
+            margin-bottom: 2rem;
+        }
+
+        .details-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .treatment-item, .payment-item {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .treatment-date, .payment-date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .treatment-description {
+            margin-top: 0.5rem;
+        }
+
+        .payment-amount {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .payment-type {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+
+        .payment-type.cash {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .payment-type.insurance {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .total-payments {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: left;
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+
+        .detail-row {
+            display: flex;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            width: 150px;
+        }
+
+        .detail-value {
+            flex: 1;
+        }
+
+        .small-icon-btn {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+        
+        .small-icon-btn:hover {
+            transform: scale(1.1);
+            background: #45a049;
+        }
+        
+        .small-icon-btn i {
+            font-size: 1.2em;
+        }
+
+        .patient-info {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .info-row {
+            display: flex;
+            margin: 10px 0;
+            align-items: center;
+        }
+        .info-row .label {
+            font-weight: bold;
+            min-width: 120px;
+            color: #2c3e50;
+        }
+        .info-row .value {
+            color: #34495e;
+        }
+        .results-table th:first-child,
+        .results-table td:first-child {
+            min-width: 100px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="assets/dr.jpg" alt="صورة الطبيب">
+                </div>
+                <div class="welcome">
+                    <span>يوم سعيد</span>
+                    <h3>د. حسن حشاش</h3>
+                </div>
+            </div>
+            <div class="logo">
+                <img src="assets/logo.jpg" alt="شعار العيادة">
+                <h1>نظام إدارة عيادة الأسنان</h1>
+            </div>
+        </header>
+        
+        <nav class="sidebar">
+            <a href="index.html" class="sidebar-item sidebar-home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="new-patient.html" class="sidebar-item sidebar-new-patient" onclick="return checkPermission('new_patient')">
+                <i class="fas fa-user-plus"></i>
+                <span>مريض جديد</span>
+            </a>
+            <a href="payments.html" class="sidebar-item sidebar-payments" onclick="return checkPermission('payments')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>المدفوعات</span>
+            </a>
+            <a href="expenses.html" class="sidebar-item sidebar-expenses">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>المصروفات</span>
+            </a>
+            <a href="search.html" class="sidebar-item sidebar-search">
+                <i class="fas fa-search"></i>
+                <span>بحث</span>
+            </a>
+            <a href="users.html" class="sidebar-item sidebar-users" onclick="return checkPermission('users')">
+                <i class="fas fa-users"></i>
+                <span>المستخدمون</span>
+            </a>
+            <a href="settings.html" class="sidebar-item sidebar-settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            <a href="#" class="sidebar-item sidebar-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل خروج</span>
+            </a>
+        </nav>
+
+        <main>
+            <h2>بحث عن مريض</h2>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="ابحث عن مريض...">
+                    <button onclick="searchPatients()" title="بحث">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                <div style="text-align: center; margin: 0.5rem 0;">
+                    <button class="small-icon-btn" onclick="showAllPatients()" title="عرض جميع المرضى">
+                        <i class="fas fa-hospital-user fa-sm"></i>
+                    </button>
+                </div>
+                <div id="searchResults"></div>
+                <div id="patientDetails" class="patient-details">
+                    <div class="details-header">
+                        <h3>معلومات المريض</h3>
+                        <div class="patient-info">
+                            <div class="info-row">
+                                <span class="label">الرقم التسلسلي:</span>
+                                <span id="patientSerialNumber" class="value"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">الاسم:</span>
+                                <span id="patientFullName" class="value"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">العمر:</span>
+                                <span id="patientAge" class="value"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">رقم الهاتف:</span>
+                                <span id="patientPhone" class="value"></span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">العنوان:</span>
+                                <span id="patientAddress" class="value"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="details-section">
+                        <h3>سجل العلاجات</h3>
+                        <div id="treatmentsList"></div>
+                    </div>
+
+                    <div class="details-section">
+                        <h3>سجل المدفوعات</h3>
+                        <div id="paymentsList"></div>
+                        <div id="totalPayments" class="total-payments"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="permissions.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Check if logged in
+        if (!localStorage.getItem('loggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        // Update user info in header
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (currentUser.fullName) {
+            document.querySelector('.welcome h3').textContent = currentUser.fullName;
+        }
+        // Update user avatar
+        if (currentUser.userImage) {
+            document.querySelector('.avatar img').src = currentUser.userImage;
+        }
+
+        function searchPatients() {
+            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
+            const searchResults = document.getElementById('searchResults');
+            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            
+            document.getElementById('patientDetails').classList.remove('show');
+
+            if (!searchTerm) {
+                showAllPatients();
+                return;
+            }
+
+            const filteredPatients = patients.filter(patient => {
+                const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
+                const phone = patient.phone || '';
+                const serialNumber = patient.serialNumber || '';
+                return fullName.includes(searchTerm) || 
+                       phone.includes(searchTerm) || 
+                       serialNumber.includes(searchTerm);
+            });
+
+            if (filteredPatients.length === 0) {
+                searchResults.innerHTML = '<p class="no-results">لم يتم العثور على نتائج</p>';
+                return;
+            }
+
+            let tableHTML = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>الرقم التسلسلي</th>
+                            <th>الاسم</th>
+                            <th>رقم الهاتف</th>
+                            <th>العمر</th>
+                            <th>العنوان</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            filteredPatients.forEach(patient => {
+                const patientId = patient.id || `${patient.firstName}-${patient.lastName}-${patient.phone}`;
+                tableHTML += `
+                    <tr data-patient-id="${patientId}">
+                        <td>${patient.serialNumber || '-'}</td>
+                        <td>${patient.firstName} ${patient.lastName}</td>
+                        <td>${patient.phone}</td>
+                        <td>${patient.age}</td>
+                        <td>${patient.address}</td>
+                        <td class="action-buttons">
+                            <button class="btn-view" onclick="viewPatient('${patientId}')">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                            <button class="btn-edit" onclick="editPatient('${patientId}')">
+                                <i class="fas fa-edit"></i> تعديل
+                            </button>
+                            <button class="btn-delete" onclick="deletePatient('${patientId}')">
+                                <i class="fas fa-trash"></i> حذف
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            searchResults.innerHTML = tableHTML;
+        }
+
+        function viewPatient(patientId) {
+            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            const patient = patients.find(p => {
+                const currentId = p.id || `${p.firstName}-${p.lastName}-${p.phone}`;
+                return currentId === patientId;
+            });
+
+            const patientDetails = document.getElementById('patientDetails');
+            
+            if (patient) {
+                // عرض المعلومات الشخصية
+                document.getElementById('patientSerialNumber').textContent = patient.serialNumber || 'غير متوفر';
+                document.getElementById('patientFullName').textContent = `${patient.firstName} ${patient.lastName}`;
+                document.getElementById('patientAge').textContent = patient.age;
+                document.getElementById('patientPhone').textContent = patient.phone;
+                document.getElementById('patientAddress').textContent = patient.address;
+
+                // عرض سجل العلاجات
+                const treatmentsList = document.getElementById('treatmentsList');
+                treatmentsList.innerHTML = '';
+                
+                let hasAnyTreatments = false;
+
+                // عرض العلاجات من سجل العلاجات
+                if (patient.treatments && patient.treatments.length > 0) {
+                    hasAnyTreatments = true;
+                    patient.treatments.forEach(treatment => {
+                        const treatmentDate = new Date(treatment.date).toLocaleDateString('ar-EG', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+
+                        const treatmentDiv = document.createElement('div');
+                        treatmentDiv.className = 'treatment-item';
+                        treatmentDiv.innerHTML = `
+                            <div class="treatment-date">${treatmentDate}</div>
+                            <div class="treatment-description">${treatment.description}</div>
+                        `;
+                        treatmentsList.appendChild(treatmentDiv);
+                    });
+                }
+
+                // عرض العلاج المقدم من الملف الرئيسي للمريض (إذا وجد)
+                if (patient.treatment) {
+                    hasAnyTreatments = true;
+                    const treatmentDiv = document.createElement('div');
+                    treatmentDiv.className = 'treatment-item';
+                    const treatmentDate = new Date(patient.createdAt || patient.date).toLocaleDateString('ar-EG', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    treatmentDiv.innerHTML = `
+                        <div class="treatment-date">${treatmentDate}</div>
+                        <div class="treatment-description">${patient.treatment}</div>
+                    `;
+                    treatmentsList.appendChild(treatmentDiv);
+                }
+
+                if (!hasAnyTreatments) {
+                    treatmentsList.innerHTML = '<p>لا يوجد سجل علاجات</p>';
+                }
+
+                // عرض سجل المدفوعات
+                const paymentsList = document.getElementById('paymentsList');
+                paymentsList.innerHTML = '';
+                
+                let totalAmount = 0;
+                let hasAnyPayments = false;
+
+                // جلب المدفوعات من سجل المدفوعات
+                const payments = JSON.parse(localStorage.getItem('payments') || '[]');
+                const patientFullName = `${patient.firstName} ${patient.lastName}`;
+                
+                // تحسين البحث عن المدفوعات الخاصة بالمريض
+                const patientPayments = payments.filter(payment => {
+                    // التحقق من أن اسم المريض مطابق تماماً
+                    if (payment.patientName) {
+                        const paymentPatientName = payment.patientName.trim().toLowerCase();
+                        const currentPatientName = patientFullName.trim().toLowerCase();
+                        return paymentPatientName === currentPatientName;
+                    }
+                    // أو التحقق من معرف المريض إذا كان موجوداً
+                    if (payment.patientId) {
+                        return payment.patientId === patientId;
+                    }
+                    return false;
+                });
+
+                if (patientPayments.length > 0) {
+                    hasAnyPayments = true;
+                    patientPayments.forEach(payment => {
+                        if (!payment.amount) return; // تجاهل المدفوعات التي ليس لها مبلغ
+
+                        const paymentDate = new Date(payment.date).toLocaleDateString('ar-EG', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+
+                        const amount = parseFloat(payment.amount) || 0;
+                        if (amount > 0) {
+                            totalAmount += amount;
+
+                            const paymentDiv = document.createElement('div');
+                            paymentDiv.className = 'payment-item';
+                            paymentDiv.innerHTML = `
+                                <div class="payment-date">${paymentDate}</div>
+                                <span class="payment-type ${payment.paymentType || payment.type}">${(payment.paymentType || payment.type) === 'cash' ? 'نقدي' : 'تأمين'}</span>
+                                <span class="payment-amount">${formatCurrency(amount)}</span>
+                                ${payment.notes ? `<div class="payment-notes">${payment.notes}</div>` : ''}
+                            `;
+                            paymentsList.appendChild(paymentDiv);
+                        }
+                    });
+                }
+
+                // إضافة المدفوعات من ملف المريض (إذا وجدت)
+                if (patient.payments && patient.payments.length > 0) {
+                    hasAnyPayments = true;
+                    patient.payments.forEach(payment => {
+                        if (!payment.amount) return; // تجاهل المدفوعات التي ليس لها مبلغ
+
+                        const paymentDate = new Date(payment.date).toLocaleDateString('ar-EG', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        });
+
+                        const amount = parseFloat(payment.amount) || 0;
+                        if (amount > 0) {
+                            totalAmount += amount;
+
+                            const paymentDiv = document.createElement('div');
+                            paymentDiv.className = 'payment-item';
+                            paymentDiv.innerHTML = `
+                                <div class="payment-date">${paymentDate}</div>
+                                <span class="payment-type ${payment.type}">${payment.type === 'cash' ? 'نقدي' : 'تأمين'}</span>
+                                <span class="payment-amount">${formatCurrency(amount)}</span>
+                                ${payment.notes ? `<div class="payment-notes">${payment.notes}</div>` : ''}
+                            `;
+                            paymentsList.appendChild(paymentDiv);
+                        }
+                    });
+                }
+
+                if (hasAnyPayments && totalAmount > 0) {
+                    document.getElementById('totalPayments').innerHTML = `
+                        إجمالي المدفوعات: <span class="payment-amount">${formatCurrency(totalAmount)}</span>
+                    `;
+                } else {
+                    paymentsList.innerHTML = '<p>لا يوجد سجل مدفوعات</p>';
+                    document.getElementById('totalPayments').innerHTML = '';
+                }
+
+                patientDetails.classList.add('show');
+            }
+        }
+
+        // تنسيق المبلغ كعملة
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-EG', {
+                style: 'currency',
+                currency: 'ILS',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function editPatient(patientId) {
+            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            const patient = patients.find(p => {
+                const currentId = p.id || `${p.firstName}-${p.lastName}-${p.phone}`;
+                return currentId === patientId;
+            });
+            // Store the patient index for editing
+            const patientIndex = patients.findIndex(p => {
+                const currentId = p.id || `${p.firstName}-${p.lastName}-${p.phone}`;
+                return currentId === patientId;
+            });
+            localStorage.setItem('editingPatientIndex', patientIndex);
+            // Redirect to new-patient page with query parameter
+            window.location.href = `new-patient.html?edit=true`;
+        }
+
+        function deletePatient(patientId) {
+            if (confirm('هل أنت متأكد من حذف هذا المريض؟')) {
+                const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+                const patientIndex = patients.findIndex(p => {
+                    const currentId = p.id || `${p.firstName}-${p.lastName}-${p.phone}`;
+                    return currentId === patientId;
+                });
+                patients.splice(patientIndex, 1);
+                localStorage.setItem('patients', JSON.stringify(patients));
+                searchPatients(); // Refresh the results
+                document.getElementById('patientDetails').classList.remove('show');
+            }
+        }
+
+        function showAllPatients() {
+            const patients = JSON.parse(localStorage.getItem('patients') || '[]');
+            const searchResults = document.getElementById('searchResults');
+
+            if (patients.length === 0) {
+                searchResults.innerHTML = '<p class="no-results">لا يوجد مرضى مسجلين</p>';
+                return;
+            }
+
+            let tableHTML = `
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>الرقم التسلسلي</th>
+                            <th>الاسم</th>
+                            <th>رقم الهاتف</th>
+                            <th>العمر</th>
+                            <th>العنوان</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            patients.forEach(patient => {
+                const patientId = patient.id || `${patient.firstName}-${patient.lastName}-${patient.phone}`;
+                tableHTML += `
+                    <tr data-patient-id="${patientId}">
+                        <td>${patient.serialNumber || '-'}</td>
+                        <td>${patient.firstName} ${patient.lastName}</td>
+                        <td>${patient.phone}</td>
+                        <td>${patient.age}</td>
+                        <td>${patient.address}</td>
+                        <td class="action-buttons">
+                            <button class="btn-view" onclick="viewPatient('${patientId}')">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                            <button class="btn-edit" onclick="editPatient('${patientId}')">
+                                <i class="fas fa-edit"></i> تعديل
+                            </button>
+                            <button class="btn-delete" onclick="deletePatient('${patientId}')">
+                                <i class="fas fa-trash"></i> حذف
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            searchResults.innerHTML = tableHTML;
+        }
+
+        // Add event listener for search input
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchPatients();
+            }
+        });
+    </script>
+</body>
+</html>

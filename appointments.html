@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المواعيد - نظام إدارة عيادة الأسنان</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sidebar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .appointments-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .appointments-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .add-appointment-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .calendar-day {
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            min-height: 120px;
+            background-color: #f8f9fa;
+        }
+
+        .calendar-day.today {
+            background-color: #e3f2fd;
+            border-color: var(--primary-color);
+        }
+
+        .calendar-day.has-appointments {
+            background-color: #f0f9ff;
+        }
+
+        .day-header {
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .appointment-item {
+            background-color: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border-right: 3px solid var(--primary-color);
+        }
+
+        .appointment-item:hover {
+            transform: translateX(-5px);
+        }
+
+        .appointment-time {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .appointment-name {
+            margin-top: 0.2rem;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group select {
+            background-color: white;
+            cursor: pointer;
+        }
+
+        .form-group input:hover,
+        .form-group select:hover,
+        .form-group textarea:hover {
+            border-color: var(--primary-color);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(var(--primary-color-rgb), 0.1);
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .month-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .month-nav-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--primary-color);
+            padding: 0.5rem;
+        }
+
+        .current-month {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .appointment-status {
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-top: 0.2rem;
+        }
+
+        .status-confirmed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-cancelled {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .empty-day {
+            text-align: center;
+            color: #666;
+            font-size: 0.9rem;
+            padding: 1rem 0;
+        }
+
+        .appointment-details {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="assets/dr.jpg" alt="صورة الطبيب">
+                </div>
+                <div class="welcome">
+                    <span>يوم سعيد</span>
+                    <h3>د. حسن حشاش</h3>
+                </div>
+            </div>
+            <div class="logo">
+                <img src="assets/logo.jpg" alt="شعار العيادة">
+                <h1>نظام إدارة عيادة الأسنان</h1>
+            </div>
+        </header>
+        
+        <nav class="sidebar">
+            <a href="index.html" class="sidebar-item sidebar-home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="new-patient.html" class="sidebar-item sidebar-new-patient" onclick="return checkPermission('new_patient')">
+                <i class="fas fa-user-plus"></i>
+                <span>مريض جديد</span>
+            </a>
+            <a href="payments.html" class="sidebar-item sidebar-payments" onclick="return checkPermission('payments')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>المدفوعات</span>
+            </a>
+            <a href="expenses.html" class="sidebar-item sidebar-expenses">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>المصروفات</span>
+            </a>
+            <a href="search.html" class="sidebar-item sidebar-search">
+                <i class="fas fa-search"></i>
+                <span>بحث</span>
+            </a>
+            <a href="users.html" class="sidebar-item sidebar-users" onclick="return checkPermission('users')">
+                <i class="fas fa-users"></i>
+                <span>المستخدمون</span>
+            </a>
+            <a href="settings.html" class="sidebar-item sidebar-settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            <a href="#" class="sidebar-item sidebar-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل خروج</span>
+            </a>
+        </nav>
+
+        <main>
+            <div class="appointments-container">
+                <div class="appointments-header">
+                    <h2>المواعيد</h2>
+                    <button class="add-appointment-btn" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i>
+                        موعد جديد
+                    </button>
+                </div>
+
+                <div class="month-navigation">
+                    <button class="month-nav-btn" onclick="previousMonth()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <div class="current-month" id="currentMonth"></div>
+                    <button class="month-nav-btn" onclick="nextMonth()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="calendar-header">
+                    <div>الأحد</div>
+                    <div>الإثنين</div>
+                    <div>الثلاثاء</div>
+                    <div>الأربعاء</div>
+                    <div>الخميس</div>
+                    <div>الجمعة</div>
+                    <div>السبت</div>
+                </div>
+
+                <div class="calendar-container" id="calendarGrid">
+                    <!-- Calendar will be populated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Appointment Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">موعد جديد</h3>
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="appointmentForm">
+                <input type="hidden" id="appointmentId">
+                <div class="form-group">
+                    <label for="patientName">اسم المريض</label>
+                    <input type="text" id="patientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="patientPhone">رقم الهاتف</label>
+                    <input type="tel" id="patientPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="appointmentDate">التاريخ</label>
+                    <input type="date" id="appointmentDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="appointmentTime">الوقت</label>
+                    <input type="time" id="appointmentTime" required>
+                </div>
+                <div class="form-group">
+                    <label for="appointmentType">نوع الموعد</label>
+                    <select id="appointmentType" required>
+                        <option value="">اختر نوع الموعد</option>
+                        <option value="كشف">كشف</option>
+                        <option value="متابعة">متابعة</option>
+                        <option value="علاج">علاج</option>
+                        <option value="طوارئ">طوارئ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="notes">ملاحظات</label>
+                    <textarea id="notes" rows="3" placeholder="أضف أي ملاحظات إضافية هنا..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="status">حالة الموعد</label>
+                    <select id="status" required>
+                        <option value="">اختر حالة الموعد</option>
+                        <option value="confirmed">مؤكد</option>
+                        <option value="pending">قيد الانتظار</option>
+                        <option value="cancelled">ملغي</option>
+                    </select>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-secondary" onclick="closeModal()">إلغاء</button>
+                    <button type="submit" class="btn-primary">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="permissions.js"></script>
+    <script>
+        // التحقق من تسجيل الدخول وصلاحيات الوصول للمواعيد
+        if (!localStorage.getItem('loggedIn')) {
+            window.location.href = 'login.html';
+        }
+        
+        // التحقق من صلاحية الوصول للمواعيد
+        enforcePermission('appointments');
+
+        let currentDate = new Date();
+        let selectedDate = null;
+
+        // Initialize appointments in localStorage if not exists
+        if (!localStorage.getItem('appointments')) {
+            localStorage.setItem('appointments', JSON.stringify([]));
+        }
+
+        // Update user info in header
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (currentUser.fullName) {
+            document.querySelector('.welcome h3').textContent = currentUser.fullName;
+        }
+        // Update user avatar
+        if (currentUser.userImage) {
+            document.querySelector('.avatar img').src = currentUser.userImage;
+        }
+
+        function openAddModal(date = null) {
+            const modal = document.getElementById('appointmentModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const form = document.getElementById('appointmentForm');
+            
+            modalTitle.textContent = 'موعد جديد';
+            form.reset();
+            
+            if (date) {
+                document.getElementById('appointmentDate').value = date;
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('appointmentModal').style.display = 'none';
+            document.getElementById('appointmentForm').reset();
+        }
+
+        function updateCalendar() {
+            const monthYear = currentDate.toLocaleDateString('ar-EG', { month: 'long', year: 'numeric' });
+            document.getElementById('currentMonth').textContent = monthYear;
+
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+            const startingDay = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '';
+
+            // Add empty cells for days before the first day of the month
+            for (let i = 0; i < startingDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day';
+                calendarGrid.appendChild(emptyDay);
+            }
+
+            // Add cells for each day of the month
+            for (let day = 1; day <= totalDays; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.className = 'calendar-day';
+                
+                const currentDateString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const today = new Date();
+                
+                if (day === today.getDate() && 
+                    currentDate.getMonth() === today.getMonth() && 
+                    currentDate.getFullYear() === today.getFullYear()) {
+                    dayCell.classList.add('today');
+                }
+
+                const dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                dayHeader.textContent = day;
+                dayCell.appendChild(dayHeader);
+
+                // Get appointments for this day
+                const appointments = JSON.parse(localStorage.getItem('appointments') || '[]')
+                    .filter(app => app.date === currentDateString);
+
+                if (appointments.length > 0) {
+                    dayCell.classList.add('has-appointments');
+                    appointments.forEach(appointment => {
+                        const appointmentDiv = document.createElement('div');
+                        appointmentDiv.className = 'appointment-item';
+                        appointmentDiv.innerHTML = `
+                            <div class="appointment-time">${appointment.time}</div>
+                            <div class="appointment-name">${appointment.patientName}</div>
+                            <div class="appointment-status status-${appointment.status}">
+                                ${appointment.status === 'confirmed' ? 'مؤكد' : 
+                                  appointment.status === 'pending' ? 'قيد الانتظار' : 'ملغي'}
+                            </div>
+                        `;
+                        appointmentDiv.onclick = () => editAppointment(appointment.id);
+                        dayCell.appendChild(appointmentDiv);
+                    });
+                } else {
+                    const emptyMessage = document.createElement('div');
+                    emptyMessage.className = 'empty-day';
+                    emptyMessage.textContent = 'لا مواعيد';
+                    dayCell.appendChild(emptyMessage);
+                }
+
+                dayCell.ondblclick = () => openAddModal(currentDateString);
+                calendarGrid.appendChild(dayCell);
+            }
+        }
+
+        function previousMonth() {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            updateCalendar();
+        }
+
+        function nextMonth() {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            updateCalendar();
+        }
+
+        function editAppointment(appointmentId) {
+            const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+            const appointment = appointments.find(app => app.id === appointmentId);
+            
+            if (appointment) {
+                const modal = document.getElementById('appointmentModal');
+                const modalTitle = document.getElementById('modalTitle');
+                
+                modalTitle.textContent = 'تعديل الموعد';
+                document.getElementById('appointmentId').value = appointmentId;
+                document.getElementById('patientName').value = appointment.patientName;
+                document.getElementById('patientPhone').value = appointment.patientPhone;
+                document.getElementById('appointmentDate').value = appointment.date;
+                document.getElementById('appointmentTime').value = appointment.time;
+                document.getElementById('appointmentType').value = appointment.type;
+                document.getElementById('notes').value = appointment.notes || '';
+                document.getElementById('status').value = appointment.status;
+                
+                modal.style.display = 'block';
+            }
+        }
+
+        document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const appointmentId = document.getElementById('appointmentId').value;
+            const appointmentData = {
+                id: appointmentId || Date.now().toString(),
+                patientName: document.getElementById('patientName').value,
+                patientPhone: document.getElementById('patientPhone').value,
+                date: document.getElementById('appointmentDate').value,
+                time: document.getElementById('appointmentTime').value,
+                type: document.getElementById('appointmentType').value,
+                notes: document.getElementById('notes').value,
+                status: document.getElementById('status').value
+            };
+
+            let appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
+            
+            if (appointmentId) {
+                const index = appointments.findIndex(app => app.id === appointmentId);
+                if (index !== -1) {
+                    appointments[index] = appointmentData;
+                }
+            } else {
+                appointments.push(appointmentData);
+            }
+
+            localStorage.setItem('appointments', JSON.stringify(appointments));
+            closeModal();
+            updateCalendar();
+            alert(appointmentId ? 'تم تحديث الموعد بنجاح' : 'تم إضافة الموعد بنجاح');
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('appointmentModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize calendar
+        updateCalendar();
+    </script>
+</body>
+</html>

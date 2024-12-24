@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المصروفات - نظام إدارة عيادة الأسنان</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sidebar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .expense-form {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .expenses-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .expense-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .expense-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .expense-card h3 {
+            margin: 0 0 1rem;
+            color: var(--text-color);
+            font-size: 1.2rem;
+        }
+
+        .expense-card p {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .expense-info {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .expense-type {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: white;
+            background: var(--primary-color);
+        }
+
+        .expense-amount {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 1rem 0;
+        }
+
+        .expense-date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .expenses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="assets/default-avatar.png" alt="صورة المستخدم">
+                </div>
+                <div class="welcome">
+                    <span>يوم سعيد</span>
+                    <h3 id="userFullName">المستخدم</h3>
+                </div>
+            </div>
+            <div class="logo">
+                <img src="assets/logo.jpg" alt="شعار العيادة">
+                <h1>نظام إدارة عيادة الأسنان</h1>
+            </div>
+        </header>
+        
+        <nav class="sidebar">
+            <a href="index.html" class="sidebar-item sidebar-home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="new-patient.html" class="sidebar-item sidebar-new-patient" onclick="return checkPermission('new_patient')">
+                <i class="fas fa-user-plus"></i>
+                <span>مريض جديد</span>
+            </a>
+            <a href="payments.html" class="sidebar-item sidebar-payments" onclick="return checkPermission('payments')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>المدفوعات</span>
+            </a>
+            <a href="expenses.html" class="sidebar-item sidebar-expenses">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>المصروفات</span>
+            </a>
+            <a href="search.html" class="sidebar-item sidebar-search">
+                <i class="fas fa-search"></i>
+                <span>بحث</span>
+            </a>
+            <a href="users.html" class="sidebar-item sidebar-users" onclick="return checkPermission('users')">
+                <i class="fas fa-users"></i>
+                <span>المستخدمون</span>
+            </a>
+            <a href="settings.html" class="sidebar-item sidebar-settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            <a href="#" class="sidebar-item sidebar-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل خروج</span>
+            </a>
+        </nav>
+
+        <main>
+            <h2>إضافة مصروفات جديدة</h2>
+            <form class="expense-form" id="expenseForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="expenseType">نوع المصروف</label>
+                        <select id="expenseType" required>
+                            <option value="">اختر نوع المصروف</option>
+                            <option value="supplies">مستلزمات طبية</option>
+                            <option value="equipment">معدات</option>
+                            <option value="maintenance">صيانة</option>
+                            <option value="utilities">مرافق</option>
+                            <option value="salary">رواتب</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">المبلغ</label>
+                        <input type="number" id="amount" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">وصف المصروف</label>
+                    <textarea id="description" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vendor">المورد/الجهة</label>
+                        <input type="text" id="vendor">
+                    </div>
+                    <div class="form-group">
+                        <label for="receiptNumber">رقم الإيصال</label>
+                        <input type="text" id="receiptNumber">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">إضافة المصروف</button>
+                </div>
+            </form>
+
+            <div class="expenses-grid" id="expensesGrid">
+                <!-- سيتم إضافة بطاقات المصروفات هنا عن طريق JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // التحقق من تسجيل الدخول
+        if (!localStorage.getItem('loggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        // تحديث معلومات المستخدم في الهيدر
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (currentUser.fullName) {
+            document.getElementById('userFullName').textContent = currentUser.fullName;
+        }
+        // تحديث صورة المستخدم
+        if (currentUser.userImage) {
+            document.querySelector('.avatar img').src = currentUser.userImage;
+        }
+
+        // تحميل وعرض المصروفات
+        function loadExpenses() {
+            const expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+            const expensesGrid = document.getElementById('expensesGrid');
+            expensesGrid.innerHTML = '';
+
+            expenses.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(expense => {
+                const card = document.createElement('div');
+                card.className = 'expense-card';
+                
+                const date = new Date(expense.date).toLocaleDateString('ar-EG', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                card.innerHTML = `
+                    <h3>${expense.expenseType}</h3>
+                    <span class="expense-type">${getExpenseTypeText(expense.expenseType)}</span>
+                    <div class="expense-info">
+                        <p class="expense-amount">${formatCurrency(expense.amount)}</p>
+                        <p class="expense-date">${date}</p>
+                        <p>${expense.description}</p>
+                        ${expense.vendor ? `<p>المورد: ${expense.vendor}</p>` : ''}
+                        ${expense.receiptNumber ? `<p>رقم الإيصال: ${expense.receiptNumber}</p>` : ''}
+                    </div>
+                `;
+                expensesGrid.appendChild(card);
+            });
+        }
+
+        // تحويل نوع المصروف إلى نص عربي
+        function getExpenseTypeText(type) {
+            const types = {
+                'supplies': 'مستلزمات طبية',
+                'equipment': 'معدات',
+                'maintenance': 'صيانة',
+                'utilities': 'مرافق',
+                'salary': 'رواتب',
+                'other': 'أخرى'
+            };
+            return types[type] || type;
+        }
+
+        // معالجة تقديم نموذج المصروفات
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const expenseData = {
+                expenseType: document.getElementById('expenseType').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                description: document.getElementById('description').value,
+                vendor: document.getElementById('vendor').value,
+                receiptNumber: document.getElementById('receiptNumber').value,
+                date: new Date().toISOString()
+            };
+
+            const expenses = JSON.parse(localStorage.getItem('expenses') || '[]');
+            expenses.push(expenseData);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+
+            loadExpenses();
+            this.reset();
+            alert('تم إضافة المصروف بنجاح');
+        });
+
+        // تنسيق المبلغ كعملة
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('ar-EG', {
+                style: 'currency',
+                currency: 'ILS',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        // تحميل المصروفات عند تحميل الصفحة
+        loadExpenses();
+    </script>
+</body>
+</html>

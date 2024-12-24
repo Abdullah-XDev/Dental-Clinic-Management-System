@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الملفات - نظام إدارة عيادة الأسنان</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sidebar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .files-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 2rem 0;
+        }
+
+        .files-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .upload-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .file-card {
+            background-color: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .file-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .file-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .file-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            word-break: break-word;
+        }
+
+        .file-info {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .file-actions {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .file-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .view-btn {
+            background-color: #17a2b8;
+        }
+
+        .download-btn {
+            background-color: #28a745;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .close-btn {
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .category-filter {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .category-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: white;
+            transition: all 0.3s;
+        }
+
+        .category-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="assets/dr.jpg" alt="صورة الطبيب">
+                </div>
+                <div class="welcome">
+                    <span>يوم سعيد</span>
+                    <h3>د. حسن حشاش</h3>
+                </div>
+            </div>
+            <div class="logo">
+                <img src="assets/logo.jpg" alt="شعار العيادة">
+                <h1>نظام إدارة عيادة الأسنان</h1>
+            </div>
+        </header>
+        
+        <nav class="sidebar">
+            <a href="index.html" class="sidebar-item sidebar-home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="new-patient.html" class="sidebar-item sidebar-new-patient" onclick="return checkPermission('new_patient')">
+                <i class="fas fa-user-plus"></i>
+                <span>مريض جديد</span>
+            </a>
+            <a href="payments.html" class="sidebar-item sidebar-payments" onclick="return checkPermission('payments')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>المدفوعات</span>
+            </a>
+            <a href="expenses.html" class="sidebar-item sidebar-expenses">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>المصروفات</span>
+            </a>
+            <a href="search.html" class="sidebar-item sidebar-search">
+                <i class="fas fa-search"></i>
+                <span>بحث</span>
+            </a>
+            <a href="users.html" class="sidebar-item sidebar-users" onclick="return checkPermission('users')">
+                <i class="fas fa-users"></i>
+                <span>المستخدمون</span>
+            </a>
+            <a href="settings.html" class="sidebar-item sidebar-settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            <a href="#" class="sidebar-item sidebar-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل خروج</span>
+            </a>
+        </nav>
+
+        <main>
+            <div class="files-container">
+                <div class="files-header">
+                    <h2>الملفات</h2>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="بحث في الملفات...">
+                    </div>
+                    <button class="upload-btn" onclick="openUploadModal()">
+                        <i class="fas fa-upload"></i>
+                        رفع ملف
+                    </button>
+                </div>
+
+                <div class="category-filter">
+                    <button class="category-btn active" data-category="all">الكل</button>
+                    <button class="category-btn" data-category="images">صور الأشعة</button>
+                    <button class="category-btn" data-category="reports">التقارير الطبية</button>
+                    <button class="category-btn" data-category="prescriptions">الوصفات الطبية</button>
+                    <button class="category-btn" data-category="documents">مستندات أخرى</button>
+                </div>
+
+                <div class="files-grid" id="filesGrid">
+                    <!-- Files will be populated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Upload File Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>رفع ملف جديد</h3>
+                <span class="close-btn" onclick="closeUploadModal()">&times;</span>
+            </div>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="fileName">اسم الملف</label>
+                    <input type="text" id="fileName" required>
+                </div>
+                <div class="form-group">
+                    <label for="fileCategory">نوع الملف</label>
+                    <select id="fileCategory" required>
+                        <option value="images">صور الأشعة</option>
+                        <option value="reports">التقارير الطبية</option>
+                        <option value="prescriptions">الوصفات الطبية</option>
+                        <option value="documents">مستندات أخرى</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="patientName">اسم المريض</label>
+                    <input type="text" id="patientName" required>
+                </div>
+                <div class="form-group">
+                    <label for="fileUpload">اختر الملف</label>
+                    <input type="file" id="fileUpload" required>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn-secondary" onclick="closeUploadModal()">إلغاء</button>
+                    <button type="submit" class="btn-primary">رفع</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="permissions.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // التحقق من تسجيل الدخول وصلاحيات الوصول للملفات
+        if (!localStorage.getItem('loggedIn')) {
+            window.location.href = 'login.html';
+        }
+        
+        // التحقق من صلاحية الوصول للملفات
+        enforcePermission('files');
+
+        // Update user info in header
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (currentUser.fullName) {
+            document.querySelector('.welcome h3').textContent = currentUser.fullName;
+        }
+        // Update user avatar
+        if (currentUser.userImage) {
+            document.querySelector('.avatar img').src = currentUser.userImage;
+        }
+
+        let currentFilter = 'all';
+        const fileIcons = {
+            'images': 'fa-image',
+            'reports': 'fa-file-medical',
+            'prescriptions': 'fa-prescription',
+            'documents': 'fa-file-alt'
+        };
+
+        // Initialize files in localStorage if not exists
+        if (!localStorage.getItem('files')) {
+            localStorage.setItem('files', JSON.stringify([]));
+        }
+
+        function openUploadModal() {
+            document.getElementById('uploadModal').style.display = 'block';
+        }
+
+        function closeUploadModal() {
+            document.getElementById('uploadModal').style.display = 'none';
+            document.getElementById('uploadForm').reset();
+        }
+
+        function loadFiles() {
+            const files = JSON.parse(localStorage.getItem('files') || '[]');
+            const filesGrid = document.getElementById('filesGrid');
+            filesGrid.innerHTML = '';
+
+            const filteredFiles = currentFilter === 'all' ? 
+                files : 
+                files.filter(file => file.category === currentFilter);
+
+            if (filteredFiles.length === 0) {
+                filesGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <p>لا توجد ملفات</p>
+                        <button class="upload-btn" onclick="openUploadModal()">
+                            <i class="fas fa-upload"></i>
+                            رفع ملف جديد
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredFiles.forEach(file => {
+                const fileCard = document.createElement('div');
+                fileCard.className = 'file-card';
+                fileCard.innerHTML = `
+                    <div class="file-icon">
+                        <i class="fas ${fileIcons[file.category]}"></i>
+                    </div>
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-info">
+                        <div>المريض: ${file.patientName}</div>
+                        <div>${new Date(file.date).toLocaleDateString('ar-EG')}</div>
+                    </div>
+                    <div class="file-actions">
+                        <button class="file-btn view-btn" onclick="viewFile('${file.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="file-btn download-btn" onclick="downloadFile('${file.id}')">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="file-btn delete-btn" onclick="deleteFile('${file.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                filesGrid.appendChild(fileCard);
+            });
+        }
+
+        // Filter files by category
+        document.querySelectorAll('.category-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.category;
+                loadFiles();
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const files = JSON.parse(localStorage.getItem('files') || '[]');
+            const filesGrid = document.getElementById('filesGrid');
+            filesGrid.innerHTML = '';
+
+            const filteredFiles = files.filter(file => 
+                file.name.toLowerCase().includes(searchTerm) ||
+                file.patientName.toLowerCase().includes(searchTerm)
+            );
+
+            if (filteredFiles.length === 0) {
+                filesGrid.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <p>لا توجد نتائج للبحث</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filteredFiles.forEach(file => {
+                // ... (same file card creation code as in loadFiles)
+            });
+        });
+
+        // Handle file upload
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileData = {
+                id: Date.now().toString(),
+                name: document.getElementById('fileName').value,
+                category: document.getElementById('fileCategory').value,
+                patientName: document.getElementById('patientName').value,
+                date: new Date().toISOString(),
+                // In a real application, you would handle file upload to a server here
+                // For this demo, we'll just store the metadata
+            };
+
+            const files = JSON.parse(localStorage.getItem('files') || '[]');
+            files.push(fileData);
+            localStorage.setItem('files', JSON.stringify(files));
+            
+            closeUploadModal();
+            loadFiles();
+            if (typeof updateFileCount === 'function') {
+                updateFileCount();
+            }
+            alert('تم رفع الملف بنجاح');
+        });
+
+        function viewFile(fileId) {
+            // In a real application, this would open the file
+            alert('عرض الملف');
+        }
+
+        function downloadFile(fileId) {
+            // In a real application, this would download the file
+            alert('جاري تحميل الملف');
+        }
+
+        function deleteFile(fileId) {
+            if (confirm('هل أنت متأكد من حذف هذا الملف؟')) {
+                let files = JSON.parse(localStorage.getItem('files') || '[]');
+                files = files.filter(file => file.id !== fileId);
+                localStorage.setItem('files', JSON.stringify(files));
+                loadFiles();
+                if (typeof updateFileCount === 'function') {
+                    updateFileCount();
+                }
+            }
+        }
+
+        // Load files when page loads
+        loadFiles();
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('uploadModal');
+            if (event.target === modal) {
+                closeUploadModal();
+            }
+        }
+    </script>
+</body>
+</html>

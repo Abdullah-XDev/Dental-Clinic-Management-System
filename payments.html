@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المدفوعات - نظام إدارة عيادة الأسنان</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="sidebar.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        .payment-form {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 800px;
+            margin: 0 auto 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .form-group textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .payments-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .payment-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .payment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+        }
+
+        .payment-card h3 {
+            margin: 0 0 1rem;
+            color: var(--text-color);
+            font-size: 1.2rem;
+        }
+
+        .payment-card p {
+            margin: 0.5rem 0;
+            color: var(--text-secondary);
+        }
+
+        .payment-info {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .payment-type {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: white;
+            background: var(--primary-color);
+        }
+
+        .payment-amount {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin: 1rem 0;
+        }
+
+        .payment-date {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .payment-options {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .payment-option {
+            flex: 1;
+            padding: 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .payment-option:hover,
+        .payment-option.active {
+            border-color: var(--primary-color);
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .insurance-fields {
+            display: none;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .payments-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="user-info">
+                <div class="avatar">
+                    <img src="assets/default-avatar.png" alt="صورة المستخدم">
+                </div>
+                <div class="welcome">
+                    <span>يوم سعيد</span>
+                    <h3 id="userFullName">المستخدم</h3>
+                </div>
+            </div>
+            <div class="logo">
+                <img src="assets/logo.jpg" alt="شعار العيادة">
+                <h1>نظام إدارة عيادة الأسنان</h1>
+            </div>
+        </header>
+        
+        <nav class="sidebar">
+            <a href="index.html" class="sidebar-item sidebar-home">
+                <i class="fas fa-home"></i>
+                <span>الرئيسية</span>
+            </a>
+            <a href="new-patient.html" class="sidebar-item sidebar-new-patient" onclick="return checkPermission('new_patient')">
+                <i class="fas fa-user-plus"></i>
+                <span>مريض جديد</span>
+            </a>
+            <a href="payments.html" class="sidebar-item sidebar-payments" onclick="return checkPermission('payments')">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>المدفوعات</span>
+            </a>
+            <a href="expenses.html" class="sidebar-item sidebar-expenses">
+                <i class="fas fa-file-invoice-dollar"></i>
+                <span>المصروفات</span>
+            </a>
+            <a href="search.html" class="sidebar-item sidebar-search">
+                <i class="fas fa-search"></i>
+                <span>بحث</span>
+            </a>
+            <a href="users.html" class="sidebar-item sidebar-users" onclick="return checkPermission('users')">
+                <i class="fas fa-users"></i>
+                <span>المستخدمون</span>
+            </a>
+            <a href="settings.html" class="sidebar-item sidebar-settings">
+                <i class="fas fa-cog"></i>
+                <span>الإعدادات</span>
+            </a>
+            <a href="#" class="sidebar-item sidebar-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>تسجيل خروج</span>
+            </a>
+        </nav>
+
+        <main>
+            <h2>إضافة مدفوعات جديدة</h2>
+            <form class="payment-form" id="paymentForm">
+                <div class="payment-options">
+                    <div class="payment-option active" data-type="cash">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <span>دفع نقدي</span>
+                    </div>
+                    <div class="payment-option" data-type="insurance">
+                        <i class="fas fa-file-medical"></i>
+                        <span>دفع بالتأمين</span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="patientName">اسم المريض</label>
+                        <input type="text" id="patientName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="paymentType">نوع الخدمة</label>
+                        <select id="paymentType" required>
+                            <option value="">اختر نوع الخدمة</option>
+                            <option value="consultation">كشف</option>
+                            <option value="treatment">علاج</option>
+                            <option value="xray">أشعة</option>
+                            <option value="other">أخرى</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">المبلغ</label>
+                        <input type="number" id="amount" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">ملاحظات</label>
+                        <textarea id="notes"></textarea>
+                    </div>
+                </div>
+
+                <div id="insuranceFields" class="insurance-fields">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="insuranceCompany">شركة التأمين</label>
+                            <input type="text" id="insuranceCompany">
+                        </div>
+                        <div class="form-group">
+                            <label for="policyNumber">رقم البوليصة</label>
+                            <input type="text" id="policyNumber">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="coveragePercentage">نسبة التغطية</label>
+                        <input type="number" id="coveragePercentage" min="0" max="100">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button type="submit" class="btn-primary">إضافة المدفوعات</button>
+                </div>
+            </form>
+
+            <div class="payments-grid" id="paymentsGrid">
+                <!-- سيتم إضافة بطاقات المدفوعات هنا عن طريق JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        // التحقق من تسجيل الدخول وصلاحيات الوصول للمدفوعات
+        if (!localStorage.getItem('loggedIn')) {
+            window.location.href = 'login.html';
+        }
+
+        // تحديث معلومات المستخدم في الهيدر
+        const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
+        if (currentUser.fullName) {
+            document.getElementById('userFullName').textContent = currentUser.fullName;
+        }
+        // تحديث صورة المستخدم
+        if (currentUser.userImage) {
+            document.querySelector('.avatar img').src = currentUser.userImage;
+        }
+
+        // إضافة مستمعي الأحداث لخيارات الدفع
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        const insuranceFields = document.getElementById('insuranceFields');
+
+        paymentOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                paymentOptions.forEach(opt => opt.classList.remove('active'));
+                this.classList.add('active');
+                
+                if (this.dataset.type === 'insurance') {
+                    insuranceFields.style.display = 'block';
+                } else {
+                    insuranceFields.style.display = 'none';
+                }
+            });
+        });
+
+        // تحميل وعرض المدفوعات
+        function loadPayments() {
+            const payments = JSON.parse(localStorage.getItem('payments')) || [];
+            const paymentsGrid = document.getElementById('paymentsGrid');
+            paymentsGrid.innerHTML = '';
+
+            payments.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(payment => {
+                const card = document.createElement('div');
+                card.className = 'payment-card';
+                
+                const date = new Date(payment.date).toLocaleDateString('ar-EG', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                card.innerHTML = `
+                    <h3>${payment.patientName}</h3>
+                    <span class="payment-type">${payment.paymentType}</span>
+                    <div class="payment-info">
+                        <p class="payment-amount">${formatCurrency(payment.amount)}</p>
+                        <p class="payment-date">${date}</p>
+                        ${payment.insuranceCompany ? `
+                            <p>شركة التأمين: ${payment.insuranceCompany}</p>
+                            <p>نسبة التغطية: ${payment.coveragePercentage}%</p>
+                        ` : ''}
+                        ${payment.notes ? `<p>ملاحظات: ${payment.notes}</p>` : ''}
+                    </div>
+                `;
+                paymentsGrid.appendChild(card);
+            });
+        }
+
+        // تحميل المدفوعات عند تحميل الصفحة
+        loadPayments();
+    </script>
+</body>
+</html>
